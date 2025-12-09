@@ -3,111 +3,214 @@ import Cl_mVenta from "./Cl_mVenta.js";
 import Cl_mCatalogo from "./Cl_mCatalogo.js";
 
 export default class Cl_vCatalogo {
-    private catalogo: Cl_mCatalogo;
-    private controlador: Cl_Controlador;
+  private catalogo: Cl_mCatalogo;
+  private controlador: Cl_Controlador;
 
-    constructor(catalogo: Cl_mCatalogo, controlador: Cl_Controlador) {
-        this.catalogo = catalogo;
-        this.controlador = controlador;
-        this.inicializarEventos();
+  constructor(catalogo: Cl_mCatalogo, controlador: Cl_Controlador) {
+    this.catalogo = catalogo;
+    this.controlador = controlador;
+    this.inicializarEventos();
+  }
+
+  inicializarEventos(): void {
+    const btnProductoCedula = document.getElementById(
+      "btnProductoCedula"
+    ) as HTMLButtonElement | null;
+    const btnInformacionProducto = document.getElementById(
+      "btnInformacionProducto"
+    ) as HTMLButtonElement | null;
+    const btnMontoVendidoProducto = document.getElementById(
+      "btnMontoVendidoProducto"
+    ) as HTMLButtonElement | null;
+
+    btnProductoCedula?.addEventListener("click", () =>
+      this.reporteProductoCedula()
+    );
+    btnInformacionProducto?.addEventListener("click", () =>
+      this.reporteInformacionProducto()
+    );
+    btnMontoVendidoProducto?.addEventListener("click", () =>
+      this.reporteMontoVendidoProducto()
+    );
+  }
+
+  obtenerSelectProductoReporte(): void {
+    const select = document.getElementById(
+      "selectProductoReporte"
+    ) as HTMLSelectElement | null;
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Seleccione producto</option>`;
+
+    const listado = this.catalogo.listado();
+    for (const p of listado) {
+      const opt = document.createElement("option");
+      opt.value = p.codigo.toString();
+      opt.textContent = `${p.codigo} - ${p.nombre}`;
+      select.appendChild(opt);
+    }
+  }
+
+  private reporteProductoCedula(): void {
+    const cedulaInput = document.getElementById(
+      "buscarCedula"
+    ) as HTMLInputElement | null;
+    if (!cedulaInput) return;
+
+    const cedula = parseInt(cedulaInput.value);
+
+    if (!cedula || cedula < 10000000) {
+      this.controlador.mostrarAlerta(
+        "⚠️ Ingrese una cédula válida",
+        "error"
+      );
+      return;
     }
 
-    inicializarEventos(): void {
-        const btnProductoCedula = document.getElementById("btnProductoCedula")
-        const btnInformacionProducto = document.getElementById("btnInformacionProducto");
-        const bntMontoVendidoProducto = document.getElementById("btnMontoVendidoProducto");
+    const venta = new Cl_mVenta({
+      id: null,
+      creadoEl: null,
+      alias: null,
+      idv: "",
+      codigo: "",
+      cedula: "",
+      cantUnid: 0,
+      cantidadMesa: 0,
+      cantidadPeluche: 0,
+      cantidadJuegos: 0,
+    });
 
-        btnProductoCedula?.addEventListener("click", () => this.reporteProductoCedula());
-        btnInformacionProducto?.addEventListener("click", () => this.reporteInformacionProducto());
-        bntMontoVendidoProducto?.addEventListener("click", () => this.reporteMontoVendidoProducto());
+    const resultado = venta.productosDeCedula({
+      cedula: cedula.toString(),
+      ventas: this.controlador.getVentas(),
+      catalogo: this.catalogo,
+    });
+
+    const tabla = document.getElementById(
+      "tablaReporteProductos"
+    ) as HTMLTableSectionElement | null;
+
+    if (!tabla) return;
+
+    if (resultado.length === 0) {
+      tabla.innerHTML =
+        '<tr><td colspan="5" class="empty">No se encontraron compras para esa cédula</td></tr>';
+      return;
     }
 
-    private reporteProductoCedula(): void {
-        const cedula = parseInt((document.getElementById("buscarCedula")as HTMLInputElement).value);
-        if(!cedula || cedula < 100000000 ) {
-            this.controlador.mostrarAlerta("⚠️ Ingrese una cédula válida");
-            return;
-        }
+    tabla.innerHTML = "";
+    for (const r of resultado) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.codigo}</td>
+        <td>${r.nombre}</td>
+        <td>${r.tipo}</td>
+        <td>${r.cantUnid}</td>
+        <td>${r.montoPagado.toFixed(2)}</td>
+      `;
+      tabla.appendChild(tr);
+    }
+  }
 
-        const venta = new Cl_mVenta({id: null, creadoEl: null, alias: null, idv: "", codigo: "", cedula:"", cantUnid: 0, cantidadMesa: 0, cantidadPeluche: 0, cantidadJuegos: 0});
-        const resultado = venta.productosDeCedula({cedula:"", ventas: this.controlador.getventas(), catalogo: this.catalogo});
+  private reporteInformacionProducto(): void {
+    const select = document.getElementById(
+      "selectProductoReporte"
+    ) as HTMLSelectElement | null;
+    if (!select) return;
 
-        const tabla = document.getElementById('tablaReporteProductos') as HTMLTableSectionElement;
-
-        if (resultado.length === 0) {
-            tabla.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">No hay productos para esta cédula</td></tr>';
-            return;
-        }
-
-         tabla.innerHTML = resultado.map(r => `
-            <tr>
-                <td>${r.codigo}</td>
-                <td>${r.nombre}</td>
-                <td>${r.tipo}</td>
-                <td>${r.cantUnid}</td>
-                <td>$${r.montoPagado.toFixed(2)}</td>
-            </tr>
-        `).join('');
+    const codigo = select.value;
+    if (!codigo) {
+      this.controlador.mostrarAlerta(
+        "⚠️ Seleccione un producto",
+        "error"
+      );
+      return;
     }
 
-    private reporteInformacionProducto(): void {
-        const codigo = (document.getElementById("buscarCodigo")as HTMLSelectElement).value;
+    const venta = new Cl_mVenta({
+      id: null,
+      creadoEl: null,
+      alias: null,
+      idv: "",
+      codigo: "",
+      cedula: "",
+      cantUnid: 0,
+      cantidadMesa: 0,
+      cantidadPeluche: 0,
+      cantidadJuegos: 0,
+    });
 
-        if(!codigo) {
-            this.controlador.mostrarAlerta("⚠️ Ingrese un código válido");
-            return;
-        }
+    const info = venta.informacionVentasProducto({
+      codigo,
+      ventas: this.controlador.getVentas(),
+      catalogo: this.catalogo,
+    });
 
-        const ventas = new Cl_mVenta({id: null, creadoEl: null, alias: null, idv:"", cedula:"", codigo:"", cantUnid: 0, cantidadJuegos:0, cantidadPeluche: 0, cantidadMesa: 0});
-        const resultado = ventas.informacionVentasProducto({codigo, ventas: this.controlador.getVentas(), catalogo: this.catalogo});
+    const div = document.getElementById(
+      "infoProductoReporte"
+    ) as HTMLDivElement | null;
+    if (!div) return;
 
-        const tabla = document.getElementById('tablaReporteInformacion') as HTMLTableSectionElement;
-
-         if (resultado.length === 0) {
-            tabla.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999;">No hay informacion para este producto</td></tr>';
-            return;
-        }
-
-        tabla.innerHTML = resultado.map(r => `
-            <tr>
-                <td>${r.cedulaPagador}</td>
-                <td>${r.unidsCompradas}</td>
-                <td>$${r.montoPagado.toFixed(2)}</td>
-            </tr>
-        `).join('');
+    if (info.length === 0) {
+      div.textContent = "No hay ventas registradas para ese producto.";
+      return;
     }
 
-    reporteMontoVendidoProducto(): void {
-        const codigo = (document.getElementById("buscarProductoMonto")as HTMLSelectElement).value;
+    const totalPersonas = info.reduce(
+      (acc, i) => acc + i.unidsCompradas,
+      0
+    );
+    const totalMonto = info.reduce((acc, i) => acc + i.montoPagado, 0);
 
-        if(!codigo) {
-            this.controlador.mostrarAlerta("⚠️ Ingrese un código válido");
-            return;
-        }
+    div.innerHTML = `
+      <p>Total asistentes: <strong>${totalPersonas}</strong></p>
+      <p>Monto total pagado: <strong>${totalMonto.toFixed(2)}</strong></p>
+    `;
+  }
 
-        const venta = new Cl_mVenta({id: null, creadoEl: null, alias: null, idv:"", cedula:"", codigo:"", cantUnid: 0, cantidadJuegos:0, cantidadPeluche: 0, cantidadMesa: 0});
-        const montoTotal =venta.vendidoProducto({codigo,ventas: this.controlador.getVentas(), catalogo: this.catalogo});
-        const tabla = document.getElementById('tablaReporteMonto') as HTMLTableSectionElement;
+  private reporteMontoVendidoProducto(): void {
+    const select = document.getElementById(
+      "selectProductoReporte"
+    ) as HTMLSelectElement | null;
+    if (!select) return;
 
-        tabla.innerHTML = `
-        <tr>
-        <td>${this.catalogo.productos.find(p => p.codigo === codigo)?.nombre || codigo}</td>
-        <td>${montoTotal.toFixed(2)}</td>
-        <tr>
-        `;
+    const codigo = select.value;
+    if (!codigo) {
+      this.controlador.mostrarAlerta(
+        "⚠️ Seleccione un producto",
+        "error"
+      );
+      return;
     }
 
-    obtenerSelectProductoReporte(): void {
-        const select = document.getElementById("buscarCodigo")as HTMLSelectElement;
-        const selectMonto = document.getElementById("buscarProductoMonto")as HTMLSelectElement;
-        const listado = this.catalogo.listado();
+    const venta = new Cl_mVenta({
+      id: null,
+      creadoEl: null,
+      alias: null,
+      idv: "",
+      codigo: "",
+      cedula: "",
+      cantUnid: 0,
+      cantidadMesa: 0,
+      cantidadPeluche: 0,
+      cantidadJuegos: 0,
+    });
 
-        select.innerHTML = '<option value="">-- Selecciona un producto --</option>' +
-        listado.map(p =>`<option value="${p.codigo}">${p.nombre}</option>`).join('');
+    const monto = venta.vendidoProducto({
+      codigo,
+      ventas: this.controlador.getVentas(),
+      catalogo: this.catalogo,
+    });
 
-        if(selectMonto) {
-            selectMonto.innerHTML = '<option value="">-- Selecciona un producto --</option>' +
-            listado.map(p =>`<option value="${p.codigo}">${p.nombre}</option>`).join('');
-        }
-    }
+    const div = document.getElementById(
+      "montoProductoReporte"
+    ) as HTMLDivElement | null;
+    if (!div) return;
+
+    div.innerHTML = `
+      <p>Monto vendido para el producto <strong>${codigo}</strong>: <strong>${monto.toFixed(
+      2
+    )}</strong></p>
+    `;
+  }
 }

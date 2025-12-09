@@ -1,6 +1,6 @@
 import Cl_mTablaWeb from "./tools/Cl_mTablaWeb.js";
 export default class Cl_mVenta extends Cl_mTablaWeb {
-    constructor({ id, creadoEl, alias, idv, cedula, codigo, cantUnid, cantidadJuegos, cantidadPeluche, cantidadMesa }) {
+    constructor({ id, creadoEl, alias, idv, cedula, codigo, cantUnid, cantidadJuegos, cantidadPeluche, cantidadMesa, }) {
         super({ id, creadoEl, alias });
         this._idv = "";
         this._cedula = "";
@@ -90,25 +90,25 @@ export default class Cl_mVenta extends Cl_mTablaWeb {
         if (!this.cantUnidOk)
             return "La cantidad es obligatoria";
         if (!this.cantidadJuegosOk)
-            return "La cantidad es obligatoria";
+            return "La cantidad de juegos es inválida";
         if (!this.cantidadPelucheOk)
-            return "Llene todos los campos";
+            return "La cantidad de peluches es inválida";
         if (!this.cantidadMesaOk)
-            return "Llene todos los campos";
+            return "La cantidad de juegos de mesa es inválida";
         return true;
     }
-    productosDeCedula({ cedula, ventas, catalogo }) {
-        let filtarCedula = ventas.filter(v => v.cedula === cedula);
-        let resultados = [];
-        for (let v of filtarCedula) {
-            let producto = catalogo.productos.find(p => p.codigo === v.codigo);
+    productosDeCedula({ cedula, ventas, catalogo, }) {
+        const filtrarCedula = ventas.filter((v) => v.cedula === cedula);
+        const resultados = [];
+        for (const v of filtrarCedula) {
+            const producto = catalogo.productos.find((p) => p.codigo === v.codigo);
             if (producto) {
                 resultados.push({
                     codigo: producto.codigo,
                     nombre: producto.nombre,
                     tipo: producto.tipo,
                     cantUnid: v.cantUnid,
-                    montoPagado: v.cantUnid * producto.precio
+                    montoPagado: v.cantUnid * producto.precio,
                 });
             }
         }
@@ -118,35 +118,35 @@ export default class Cl_mVenta extends Cl_mTablaWeb {
         let cantJuegos = 0;
         let cantMesa = 0;
         let cantPeluche = 0;
-        for (let v of ventas) {
+        for (const v of ventas) {
             cantJuegos += v.cantidadJuegos;
             cantMesa += v.cantidadMesa;
             cantPeluche += v.cantidadPeluche;
         }
         return { cantJuegos, cantMesa, cantPeluche };
     }
-    vendidoProducto({ codigo, ventas, catalogo }) {
-        let filtrarCodigo = ventas.filter(v => v.codigo === codigo);
-        let producto = catalogo.productos.find(p => p.codigo === codigo);
+    vendidoProducto({ codigo, ventas, catalogo, }) {
+        const filtrarCodigo = ventas.filter((v) => v.codigo === codigo);
+        const producto = catalogo.productos.find((p) => p.codigo === codigo);
         if (!producto) {
             return 0;
         }
         let montoTotal = 0;
-        filtrarCodigo.forEach(v => {
+        filtrarCodigo.forEach((v) => {
             montoTotal += v.cantUnid * producto.precio;
         });
         return montoTotal;
     }
-    informacionVentasProducto({ codigo, ventas, catalogo }) {
-        let filtrarCedula = ventas.filter(v => v.codigo === codigo);
-        let resultados = [];
-        let producto = catalogo.productos.find(p => p.codigo === codigo);
+    informacionVentasProducto({ codigo, ventas, catalogo, }) {
+        const filtrarCodigo = ventas.filter((v) => v.codigo === codigo);
+        const resultados = [];
+        const producto = catalogo.productos.find((p) => p.codigo === codigo);
         if (!producto) {
             return [];
         }
-        for (let v of filtrarCedula) {
-            let unidsCompradas = v.cantidadJuegos + v.cantidadMesa + v.cantidadPeluche;
-            let montoPagado = this.cantUnid * producto.precio;
+        for (const v of filtrarCodigo) {
+            const unidsCompradas = v.cantidadJuegos + v.cantidadMesa + v.cantidadPeluche;
+            const montoPagado = v.cantUnid * producto.precio;
             resultados.push({
                 cedulaPagador: v.cedula,
                 unidsCompradas,

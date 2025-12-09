@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>BoxCinemas - Ventas</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>BoxCinemas</h1>
+    <nav class="nav">
+      <button onclick="app.irDashboard()">Dashboard</button>
+      <button onclick="app.irCatalogo()">Catálogo</button>
+      <button onclick="app.irVentas()">Ventas</button>
+      <button onclick="app.irReportes()">Reportes</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="alertGlobal" class="alert"></div>
+
+    <!-- Sección Dashboard -->
+    <section id="dashboard" class="section active">
+      <h2>Resumen de ventas</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Total Ventas</span>
+          <span id="statTotalVentas" class="stat-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Juegos de Mesa</span>
+          <span id="statMesa" class="stat-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Peluches</span>
+          <span id="statPeluche" class="stat-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Juegos</span>
+          <span id="statJuegos" class="stat-value">0</span>
+        </div>
+      </div>
+
+      <h3>Últimas ventas</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID Venta</th>
+            <th>Cédula</th>
+            <th>Código Producto</th>
+            <th>Cant. Unid</th>
+            <th>Mesa</th>
+            <th>Peluches</th>
+            <th>Juegos</th>
+          </tr>
+        </thead>
+        <tbody id="tablaVentas">
+          <tr><td colspan="7" class="empty">Sin ventas registradas</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Sección Catálogo -->
+    <section id="catalogo" class="section">
+      <h2>Catálogo de Productos</h2>
+
+      <div id="alertCatalogo" class="alert"></div>
+
+      <form id="formAgregarProducto" class="form">
+        <div class="form-row">
+          <label for="codigo">Código</label>
+          <input type="text" id="codigo" />
+        </div>
+        <div class="form-row">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" />
+        </div>
+        <div class="form-row">
+          <label for="tipo">Tipo</label>
+          <select id="tipo">
+            <option value="">Seleccione</option>
+            <option value="1">Consola</option>
+            <option value="2">Peluche</option>
+            <option value="3">Juego de Mesa</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="precio">Precio</label>
+          <input type="number" id="precio" min="0" step="0.01" />
+        </div>
+        <button type="submit" class="btn-primary">Agregar producto</button>
+      </form>
+
+      <h3>Listado</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Precio</th>
+          </tr>
+        </thead>
+        <tbody id="tablaCatalogo">
+          <tr><td colspan="4" class="empty">Sin productos en catálogo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Sección Ventas -->
+    <section id="ventas" class="section">
+      <h2>Registrar Venta</h2>
+
+      <div id="alertVentas" class="alert"></div>
+
+      <form id="formVenta" class="form">
+        <div class="form-row">
+          <label for="ventaIdv">ID Venta</label>
+          <input type="text" id="ventaIdv" />
+        </div>
+        <div class="form-row">
+          <label for="ventaCedula">Cédula pagador</label>
+          <input type="number" id="ventaCedula" />
+        </div>
+        <div class="form-row">
+          <label for="selectProducto">Producto</label>
+          <select id="selectProducto">
+            <option value="">Seleccione producto</option>
+            <!-- Se llena desde TS -->
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="ventaCantUnid">Cantidad total</label>
+          <input type="number" id="ventaCantUnid" min="1" />
+        </div>
+        <div class="form-row">
+          <label for="ventaCantidadMesa">Cant. Juegos de Mesa</label>
+          <input type="number" id="ventaCantidadMesa" min="0" />
+        </div>
+        <div class="form-row">
+          <label for="ventaCantidadPeluche">Cant. Peluches</label>
+          <input type="number" id="ventaCantidadPeluche" min="0" />
+        </div>
+        <div class="form-row">
+          <label for="ventaCantidadJuegos">Cant. Juegos</label>
+          <input type="number" id="ventaCantidadJuegos" min="0" />
+        </div>
+        <button type="submit" class="btn-primary">Registrar venta</button>
+      </form>
+
+      <h3>Ventas registradas</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID Venta</th>
+            <th>Cédula</th>
+            <th>Código</th>
+            <th>Cant. Unid</th>
+            <th>Mesa</th>
+            <th>Peluches</th>
+            <th>Juegos</th>
+          </tr>
+        </thead>
+        <tbody id="tablaVentas">
+          <tr><td colspan="7" class="empty">Sin ventas registradas</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Sección Reportes -->
+    <section id="reportes" class="section">
+      <h2>Reportes</h2>
+
+      <div class="report-block">
+        <h3>Productos comprados por cédula</h3>
+        <div class="form-inline">
+          <input type="number" id="buscarCedula" placeholder="Cédula" />
+          <button id="btnProductoCedula" class="btn-secondary">Buscar</button>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Cant. Unid</th>
+              <th>Monto Pagado</th>
+            </tr>
+          </thead>
+          <tbody id="tablaReporteProductos">
+            <tr><td colspan="5" class="empty">Sin datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="report-block">
+        <h3>Información de producto</h3>
+        <div class="form-inline">
+          <select id="selectProductoReporte">
+            <option value="">Seleccione producto</option>
+          </select>
+          <button id="btnInformacionProducto" class="btn-secondary">Ver información</button>
+          <button id="btnMontoVendidoProducto" class="btn-secondary">Monto vendido</button>
+        </div>
+        <div id="infoProductoReporte" class="report-info"></div>
+        <div id="montoProductoReporte" class="report-info"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./dist/Cl_Index.js"></script>
+</body>
+</html>
